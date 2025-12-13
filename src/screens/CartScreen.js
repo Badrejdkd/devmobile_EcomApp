@@ -40,9 +40,9 @@ export default function CartScreen({ navigation }) {
     let discount = 0;
     
     // Appliquer une réduction si code promo valide
-    if (promoCode === 'TEMU10') {
+    if (promoCode === 'shop123') {
       discount = subtotal * 0.10; // 10% de réduction
-    } else if (promoCode === 'TEMU20') {
+    } else if (promoCode === 'shop123') {
       discount = subtotal * 0.20; // 20% de réduction
     }
     
@@ -59,7 +59,7 @@ export default function CartScreen({ navigation }) {
   const handleApplyPromo = () => {
     setIsApplyingPromo(true);
     setTimeout(() => {
-      if (promoCode === 'TEMU10' || promoCode === 'TEMU20') {
+      if (promoCode === 'shop123' || promoCode === 'shop123') {
         Alert.alert('Succès', 'Code promo appliqué avec succès !');
       } else if (promoCode) {
         Alert.alert('Erreur', 'Code promo invalide');

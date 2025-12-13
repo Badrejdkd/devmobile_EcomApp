@@ -16,21 +16,37 @@ import {
 
 import { useAuth } from "../context/AuthContext";
 
-// Screens
+/* ================= SCREENS ================= */
+
+// Auth
 import SplashScreen from "../screens/SplashScreen";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
+
+// User
 import HomeScreen from "../screens/HomeScreen";
 import ProductDetailsScreen from "../screens/ProductDetailsScreen";
 import CartScreen from "../screens/CartScreen";
 import OrdersScreen from "../screens/OrdersScreen";
-import ProfileScreen from "../screens/ProfileScreen";
 import OrderDetailsScreen from "../screens/OrderDetailsScreen";
+import ProfileScreen from "../screens/ProfileScreen";
+
+// Admin
+import AdminHomeScreen from "../screens/admin/AdminHomeScreen";
+import AdminProductsScreen from "../screens/admin/AdminProductsScreen";
+import AdminAddProductScreen from "../screens/admin/AdminAddProductScreen";
+import AdminEditProductScreen from "../screens/admin/AdminEditProductScreen";
+import AdminOrdersScreen from "../screens/admin/AdminOrdersScreen";
+
+/* ================= NAVIGATORS ================= */
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Thème
+/* ================= CONFIG ================= */
+
+const ADMIN_EMAIL = "admin@shoppro.com";
+
 const MyTheme = {
   ...DefaultTheme,
   colors: {
@@ -40,7 +56,8 @@ const MyTheme = {
   },
 };
 
-// Logo
+/* ================= HEADER ================= */
+
 const LogoHeader = () => (
   <View style={styles.logoContainer}>
     <Text style={styles.logoText}>
@@ -49,37 +66,28 @@ const LogoHeader = () => (
   </View>
 );
 
-// Header custom pour les pages internes
-const CustomHeader = ({ navigation }) => {
-  return (
-    <View style={styles.headerContainer}>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Ionicons name="arrow-back" size={24} color="#333" />
-      </TouchableOpacity>
-
-      <LogoHeader />
-
-      <View style={styles.headerRight}>
-        <Ionicons name="search-outline" size={22} color="#333" />
-        <Ionicons name="notifications-outline" size={22} color="#333" />
-      </View>
+const CustomHeader = ({ navigation }) => (
+  <View style={styles.headerContainer}>
+    <TouchableOpacity onPress={() => navigation.goBack()}>
+      <Ionicons name="arrow-back" size={24} color="#333" />
+    </TouchableOpacity>
+    <LogoHeader />
+    <View style={styles.headerRight}>
+      <Ionicons name="search-outline" size={22} color="#333" />
+      <Ionicons name="notifications-outline" size={22} color="#333" />
     </View>
-  );
-};
+  </View>
+);
 
-// Header principal des Tabs
 const MainHeader = () => (
   <View style={styles.mainHeaderContainer}>
     <View style={styles.mainHeaderLeft}>
       <TouchableOpacity style={styles.locationButton}>
         <Ionicons name="location-outline" size={18} color="#333" />
         <Text style={styles.locationText}>Livrer à Paris</Text>
-        <Ionicons name="chevron-down" size={16} color="#666" />
       </TouchableOpacity>
     </View>
-
     <LogoHeader />
-
     <View style={styles.mainHeaderRight}>
       <Ionicons name="search-outline" size={22} color="#333" />
       <Ionicons name="chatbubble-outline" size={22} color="#333" />
@@ -87,7 +95,8 @@ const MainHeader = () => (
   </View>
 );
 
-// Icônes TabBar
+/* ================= TAB ICON ================= */
+
 const TabBarIcon = ({ name, focused, color, size }) => {
   const icons = {
     Home: focused ? "home" : "home-outline",
@@ -95,13 +104,12 @@ const TabBarIcon = ({ name, focused, color, size }) => {
     Orders: focused ? "receipt" : "receipt-outline",
     Profile: focused ? "person" : "person-outline",
   };
-
   return <Ionicons name={icons[name]} size={size} color={color} />;
 };
 
-function MainTabs() {
-  const cartItemCount = 3; // Simulation
+/* ================= USER TABS ================= */
 
+function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -110,25 +118,32 @@ function MainTabs() {
         tabBarInactiveTintColor: "#8A8A8A",
         tabBarStyle: styles.tabBar,
         tabBarIcon: ({ focused, color, size }) =>
-          TabBarIcon({ name: route.name, focused, color, size }),
+          <TabBarIcon name={route.name} focused={focused} color={color} size={size} />,
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} options={{ title: "Accueil" }} />
-
-      <Tab.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          title: "Panier",
-          tabBarBadge: cartItemCount,
-        }}
-      />
-
-      <Tab.Screen name="Orders" component={OrdersScreen} options={{ title: "Commandes" }} />
-      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: "Profil" }} />
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Cart" component={CartScreen} />
+      <Tab.Screen name="Orders" component={OrdersScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
+
+/* ================= ADMIN STACK ================= */
+
+function AdminStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="AdminHome" component={AdminHomeScreen} options={{ title: "Admin" }} />
+      <Stack.Screen name="AdminProducts" component={AdminProductsScreen} />
+      <Stack.Screen name="AdminAddProduct" component={AdminAddProductScreen} />
+      <Stack.Screen name="AdminEditProduct" component={AdminEditProductScreen} />
+      <Stack.Screen name="AdminOrders" component={AdminOrdersScreen} />
+    </Stack.Navigator>
+  );
+}
+
+/* ================= AUTH STACK ================= */
 
 function AuthStack() {
   return (
@@ -139,38 +154,48 @@ function AuthStack() {
   );
 }
 
-function AppStack() {
+/* ================= USER STACK ================= */
+
+function UserStack() {
   return (
     <Stack.Navigator
       screenOptions={{
         header: ({ navigation }) => <CustomHeader navigation={navigation} />,
       }}
     >
-      <Stack.Screen
-        name="MainTabs"
-        component={MainTabs}
-        options={{ headerShown: false }}
-      />
-
+      <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
       <Stack.Screen name="ProductDetails" component={ProductDetailsScreen} />
       <Stack.Screen name="OrderDetailsScreen" component={OrderDetailsScreen} />
     </Stack.Navigator>
   );
 }
 
+/* ================= ROOT ================= */
+
 export default function AppNavigator() {
   const { session, loading } = useAuth();
 
   if (loading) return <SplashScreen />;
 
+  if (!session) {
+    return (
+      <NavigationContainer theme={MyTheme}>
+        <AuthStack />
+      </NavigationContainer>
+    );
+  }
+
+  const isAdmin = session.user.email === ADMIN_EMAIL;
+
   return (
     <NavigationContainer theme={MyTheme}>
-      {session ? <AppStack /> : <AuthStack />}
+      {isAdmin ? <AdminStack /> : <UserStack />}
     </NavigationContainer>
   );
 }
 
-// Styles
+/* ================= STYLES ================= */
+
 const styles = StyleSheet.create({
   logoContainer: { alignItems: "center" },
   logoText: { fontSize: 24, fontWeight: "bold" },
