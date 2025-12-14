@@ -1,12 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from "react-native";
 import { supabase } from "../../supabase/client";
+import { importApiProductsToDb } from "../../supabase/productImportService";
 
 export default function AdminProductsScreen({ navigation }) {
   const [products, setProducts] = useState([]);
 
   const loadProducts = async () => {
-    const { data } = await supabase.from("products").select("*");
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false });
+
     setProducts(data || []);
   };
 
@@ -21,33 +33,37 @@ export default function AdminProductsScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      
+      {/* IMPORT API */}
       <TouchableOpacity
-        style={styles.addBtn}
-        onPress={() => navigation.navigate("AdminAddProduct")}
+        style={[styles.addBtn, { backgroundColor: "#1E88E5" }]}
+        onPress={async () => {
+          try {
+            const result = await importApiProductsToDb();
+            Alert.alert(
+              "Import terminé",
+              `${result.inserted} produits importés`
+            );
+            loadProducts();
+          } catch (e) {
+            Alert.alert("Erreur", e.message);
+          }
+        }}
       >
-        <Text style={styles.addText}>➕ Ajouter produit</Text>
+        <Text style={styles.addText}>⬇️ Importer produits API</Text>
       </TouchableOpacity>
 
       <FlatList
         data={products}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Text style={styles.name}>{item.name}</Text>
+            <Text>{item.price} DH</Text>
 
-            <View style={styles.actions}>
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate("AdminEditProduct", { product: item })
-                }
-              >
-                <Text style={styles.edit}>✏️</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => deleteProduct(item.id)}>
-                <Text style={styles.delete}>🗑️</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity onPress={() => deleteProduct(item.id)}>
+              <Text style={styles.delete}>🗑️</Text>
+            </TouchableOpacity>
           </View>
         )}
       />
@@ -58,22 +74,21 @@ export default function AdminProductsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   addBtn: {
-    backgroundColor: "#28C76F",
     padding: 15,
     borderRadius: 10,
     marginBottom: 20,
   },
-  addText: { color: "#FFF", fontWeight: "700", textAlign: "center" },
+  addText: {
+    color: "#FFF",
+    fontWeight: "700",
+    textAlign: "center",
+  },
   card: {
     backgroundColor: "#FFF",
     padding: 15,
     borderRadius: 10,
     marginBottom: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
   },
-  name: { fontWeight: "700" },
-  actions: { flexDirection: "row", gap: 15 },
-  edit: { fontSize: 18 },
-  delete: { fontSize: 18, color: "red" },
+  name: { fontWeight: "700", fontSize: 16 },
+  delete: { color: "red", marginTop: 10 },
 });
