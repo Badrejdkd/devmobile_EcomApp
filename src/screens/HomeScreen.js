@@ -7,7 +7,6 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
-  Image,
   RefreshControl,
   Animated,
   ScrollView,
@@ -15,7 +14,6 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import ProductCard from "../components/ProductCard";
-import { fetchProducts } from "../api/productsApi";
 import { supabase } from "../supabase/client";
 
 const { width } = Dimensions.get("window");
@@ -38,52 +36,38 @@ export default function HomeScreen({ navigation }) {
   });
 
   useEffect(() => {
-    load();
+    loadProducts();
   }, []);
 
   useEffect(() => {
     applyCategoryFilter();
   }, [activeCategory, products]);
 
-  /* ===================== LOAD API + DB ===================== */
-  const load = async () => {
+  /* ===================== LOAD DB PRODUCTS ONLY ===================== */
+  const loadProducts = async () => {
     try {
       setLoading(true);
 
-      /* 🔹 API PRODUCTS (NON COMMANDABLES) */
-      const apiProducts = await fetchProducts();
-      const apiNormalized = apiProducts.map((p) => ({
-        key: `api-${p.id}`,        // ⚠️ clé React seulement
-        source: "api",
-        name: p.title,
-        price: p.price,
-        image_url: p.image,
-        category: p.category,
-      }));
-
-      /* 🔹 DB PRODUCTS (COMMANDABLES) */
-      const { data: dbProducts, error } = await supabase
+      const { data, error } = await supabase
         .from("products")
-        .select("*");
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
 
-      const dbNormalized = (dbProducts || []).map((p) => ({
-        key: `db-${p.id}`,         // ⚠️ clé React
-        id: p.id,                 // ✅ BIGINT
-        source: "db",
+      const normalized = (data || []).map((p) => ({
+        key: String(p.id),       // clé FlatList
+        id: p.id,               // BIGINT → OK
         name: p.name,
         price: p.price,
         image_url: p.image_url,
         category: p.category || "other",
       }));
 
-      const allProducts = [...dbNormalized, ...apiNormalized];
-
-      setProducts(allProducts);
-      setFilteredProducts(allProducts);
-    } catch (err) {
-      console.log("Erreur chargement produits :", err);
+      setProducts(normalized);
+      setFilteredProducts(normalized);
+    } catch (e) {
+      console.log("Erreur chargement produits :", e);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -92,7 +76,7 @@ export default function HomeScreen({ navigation }) {
 
   const onRefresh = () => {
     setRefreshing(true);
-    load();
+    loadProducts();
   };
 
   /* ===================== CATEGORIES ===================== */
@@ -100,20 +84,22 @@ export default function HomeScreen({ navigation }) {
     { id: "all", name: "Tout", icon: "grid-outline", color: "#000" },
     { id: "electronics", name: "Électronique", icon: "phone-portrait-outline", color: "#FF6B6B" },
     { id: "jewelery", name: "Bijoux", icon: "diamond-outline", color: "#C71585" },
-    { id: "men's clothing", name: "Homme", icon: "man-outline", color: "#45B7D1" },
-    { id: "women's clothing", name: "Femme", icon: "woman-outline", color: "#AA00FF" },
+    { id: "men", name: "Homme", icon: "man-outline", color: "#45B7D1" },
+    { id: "women", name: "Femme", icon: "woman-outline", color: "#AA00FF" },
     { id: "other", name: "Autres", icon: "pricetag-outline", color: "#777" },
   ];
 
   const applyCategoryFilter = () => {
     if (activeCategory === "all") {
       setFilteredProducts(products);
-      return;
+    } else {
+      setFilteredProducts(
+        products.filter((p) => p.category === activeCategory)
+      );
     }
-    setFilteredProducts(products.filter(p => p.category === activeCategory));
   };
 
-  /* ===================== UI ===================== */
+  /* ===================== HEADER ===================== */
   const renderHeader = () => (
     <View>
       <Animated.View style={[styles.bannerContainer, { height: headerHeight }]}>
@@ -129,7 +115,11 @@ export default function HomeScreen({ navigation }) {
 
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Catégories</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoriesContainer}
+        >
           {categories.map((category) => (
             <TouchableOpacity
               key={category.id}
@@ -166,15 +156,15 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.productColumn}>
             <ProductCard
               product={item}
-              disabled={item.source === "api"}   // 🔒 API non commandable
               onPress={() =>
-                item.source === "db" &&
                 navigation.navigate("ProductDetails", { product: item })
               }
             />
           </View>
         )}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: false }
@@ -185,10 +175,11 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-/* ===================== STYLES (IDENTIQUES) ===================== */
+/* ===================== STYLES (INCHANGÉS) ===================== */
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F8F9FA" },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
+
   bannerContainer: { overflow: "hidden" },
   bannerItem: {
     width: width - 32,
@@ -200,6 +191,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   bannerTitle: { fontSize: 24, color: "#fff", fontWeight: "800" },
+
   sectionContainer: { backgroundColor: "#fff", paddingVertical: 16 },
   sectionTitle: { fontSize: 20, fontWeight: "700", marginLeft: 16 },
   categoriesContainer: { paddingHorizontal: 16 },
@@ -213,5 +205,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   categoryName: { fontSize: 12, fontWeight: "600", color: "#333" },
+
   productColumn: { width: "50%", padding: 6 },
 });

@@ -37,7 +37,7 @@ import AdminProductsScreen from "../screens/admin/AdminProductsScreen";
 import AdminAddProductScreen from "../screens/admin/AdminAddProductScreen";
 import AdminEditProductScreen from "../screens/admin/AdminEditProductScreen";
 import AdminOrdersScreen from "../screens/admin/AdminOrdersScreen";
-
+import AdminUsersScreen from "../screens/admin/AdminUsersScreen";
 /* ================= NAVIGATORS ================= */
 
 const Stack = createNativeStackNavigator();
@@ -139,6 +139,7 @@ function AdminStack() {
       <Stack.Screen name="AdminAddProduct" component={AdminAddProductScreen} />
       <Stack.Screen name="AdminEditProduct" component={AdminEditProductScreen} />
       <Stack.Screen name="AdminOrders" component={AdminOrdersScreen} />
+      <Stack.Screen name="AdminUsersScreen" component={AdminUsersScreen} />
     </Stack.Navigator>
   );
 }
@@ -166,6 +167,7 @@ function UserStack() {
       <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
       <Stack.Screen name="ProductDetails" component={ProductDetailsScreen} />
       <Stack.Screen name="OrderDetailsScreen" component={OrderDetailsScreen} />
+      <Stack.Screen name="AdminUsersScreen" component={AdminUsersScreen} />
     </Stack.Navigator>
   );
 }

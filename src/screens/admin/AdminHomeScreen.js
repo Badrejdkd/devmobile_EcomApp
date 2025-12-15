@@ -104,7 +104,7 @@ export default function AdminHomeScreen({ navigation }) {
 
       <TouchableOpacity
         style={[styles.actionCard, { backgroundColor: "#1E88E5" }]}
-        onPress={() => navigation.navigate("AdminUsers")}
+        onPress={() => navigation.navigate("AdminUsersScreen")}
       >
         <Ionicons name="people" size={30} color="#FFF" />
         <View style={styles.actionText}>
