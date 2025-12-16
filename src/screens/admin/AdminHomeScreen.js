@@ -9,8 +9,12 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { supabase } from "../../supabase/client";
+import { useAuth } from "../../context/AuthContext";
+import { Alert } from "react-native";
+
 
 export default function AdminHomeScreen({ navigation }) {
+  const {logout}=useAuth()
   const [productsCount, setProductsCount] = useState(0);
   const [ordersCount, setOrdersCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -114,6 +118,31 @@ export default function AdminHomeScreen({ navigation }) {
           </Text>
         </View>
       </TouchableOpacity>
+<TouchableOpacity
+  style={[styles.actionCard, { backgroundColor: "#AF4C4C" }]}
+  onPress={() => {
+    Alert.alert(
+      "Déconnexion",
+      "Voulez-vous vraiment vous déconnecter ?",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Déconnexion",
+          style: "destructive",
+          onPress: async () => {
+            await logout(); // 🔥 Supabase signOut
+          },
+        },
+      ]
+    );
+  }}
+>
+  <View style={styles.actionText}>
+    <Text style={styles.actionTitle}>🚪 Déconnexion</Text>
+  </View>
+</TouchableOpacity>
+
+
     </ScrollView>
   );
 }

@@ -230,7 +230,7 @@ export default function AdminProductsScreen({ navigation }) {
           <Text style={styles.appTitle}>Administration</Text>
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => navigation.navigate("AdminEditProduct")}
+            onPress={() => navigation.navigate("AdminAddProduct")}
           >
             <Ionicons name="add-circle" size={28} color="#FFFFFF" />
           </TouchableOpacity>
