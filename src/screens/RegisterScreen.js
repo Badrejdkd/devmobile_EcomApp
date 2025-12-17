@@ -114,14 +114,14 @@ export default function RegisterScreen({ navigation }) {
           </View>
           
           <ScrollView style={styles.modalBody}>
-            <Text style={styles.termsText}>
-              En créant un compte sur ShopPro, vous acceptez les conditions suivantes :
+            <Text style={styles.modalTermsText}>
+              En créant un compte sur ShopAddiction, vous acceptez les conditions suivantes :
               {"\n\n"}
               1. Vous êtes responsable de la confidentialité de votre compte.
               {"\n\n"}
               2. Vous ne devez pas utiliser le service à des fins illégales.
               {"\n\n"}
-              3. ShopPro se réserve le droit de suspendre tout compte violant les conditions.
+              3. ShopAddiction se réserve le droit de suspendre tout compte violant les conditions.
               {"\n\n"}
               4. Vos données personnelles sont protégées conformément à notre politique de confidentialité.
               {"\n\n"}
@@ -172,7 +172,7 @@ export default function RegisterScreen({ navigation }) {
           </View>
 
           <Text style={styles.welcomeText}>
-            Rejoignez la communauté ShopPro
+            Rejoignez la communauté ShopAddiction
           </Text>
           <Text style={styles.subtitle}>
             Créez votre compte pour commencer à shopper
@@ -322,7 +322,7 @@ export default function RegisterScreen({ navigation }) {
           </View>
 
           {/* Version */}
-          <Text style={styles.versionText}>ShopPro v1.0.0</Text>
+          <Text style={styles.versionText}>ShopAddiction v1.0.0</Text>
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -539,6 +539,11 @@ const styles = StyleSheet.create({
   },
   modalBody: {
     padding: 20,
+  },
+  modalTermsText: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 22,
   },
   modalCloseButton: {
     padding: 16,

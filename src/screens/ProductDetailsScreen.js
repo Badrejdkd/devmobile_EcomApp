@@ -30,6 +30,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
     id: product.id,
     name: product.name || product.title,
     price: product.price,
+    quantity:product.quantity,
     image: product.image_url || product.image,
     description: product.description || "Aucune description disponible."
   };

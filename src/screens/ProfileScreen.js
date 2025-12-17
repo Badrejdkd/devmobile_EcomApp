@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   View, 
   Text, 
@@ -8,13 +8,18 @@ import {
   TouchableOpacity,
   Image,
   Alert,
-  Platform
+  Platform,
+  Modal,
+  TouchableWithoutFeedback
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 
 export default function ProfileScreen({ navigation }) {
   const { session, logout } = useAuth();
+  const [avatarUri, setAvatarUri] = useState(null);
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
 
   const handleLogout = () => {
     Alert.alert(
@@ -32,6 +37,111 @@ export default function ProfileScreen({ navigation }) {
       'Modifier le profil',
       'Cette fonctionnalité sera disponible prochainement.',
       [{ text: 'OK' }]
+    );
+  };
+
+  const openPhotoOptions = () => {
+    setShowPhotoOptions(true);
+  };
+
+  const closePhotoOptions = () => {
+    setShowPhotoOptions(false);
+  };
+
+  const pickImageFromGallery = () => {
+    closePhotoOptions();
+    
+    const options = {
+      mediaType: 'photo',
+      maxWidth: 500,
+      maxHeight: 500,
+      quality: 0.8,
+      includeBase64: false,
+    };
+
+    launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorCode) {
+        Alert.alert('Erreur', `Une erreur est survenue: ${response.errorMessage}`);
+        console.log('ImagePicker Error: ', response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        const uri = response.assets[0].uri;
+        setAvatarUri(uri);
+        Alert.alert('Succès', 'Photo de profil mise à jour');
+      }
+    });
+  };
+
+  const takePhotoWithCamera = () => {
+    closePhotoOptions();
+    
+    const options = {
+      mediaType: 'photo',
+      maxWidth: 500,
+      maxHeight: 500,
+      quality: 0.8,
+      includeBase64: false,
+      saveToPhotos: true,
+    };
+
+    launchCamera(options, (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled camera');
+      } else if (response.errorCode) {
+        Alert.alert('Erreur', `Une erreur est survenue: ${response.errorMessage}`);
+        console.log('Camera Error: ', response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        const uri = response.assets[0].uri;
+        setAvatarUri(uri);
+        Alert.alert('Succès', 'Photo de profil mise à jour');
+      }
+    });
+  };
+
+  const removeProfilePhoto = () => {
+    closePhotoOptions();
+    Alert.alert(
+      'Supprimer la photo',
+      'Voulez-vous vraiment supprimer votre photo de profil ?',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: () => {
+            setAvatarUri(null);
+            Alert.alert('Succès', 'Photo de profil supprimée');
+          }
+        }
+      ]
+    );
+  };
+
+  // Alternative: Utiliser ActionSheet pour une meilleure UX
+  const showImagePickerOptions = () => {
+    Alert.alert(
+      'Changer la photo de profil',
+      'Choisissez une option',
+      [
+        {
+          text: 'Prendre une photo',
+          onPress: takePhotoWithCamera,
+        },
+        {
+          text: 'Choisir dans la galerie',
+          onPress: pickImageFromGallery,
+        },
+        avatarUri && {
+          text: 'Supprimer la photo',
+          style: 'destructive',
+          onPress: removeProfilePhoto,
+        },
+        {
+          text: 'Annuler',
+          style: 'cancel',
+        },
+      ].filter(Boolean) // Pour filtrer les options null/undefined
     );
   };
 
@@ -97,12 +207,24 @@ export default function ProfileScreen({ navigation }) {
         {/* Section Profil */}
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Icon name="person" size={40} color="#FFFFFF" />
-            </View>
+            <TouchableOpacity 
+              style={styles.avatar}
+              onPress={showImagePickerOptions} // Utiliser l'Alert directement
+              activeOpacity={0.8}
+            >
+              {avatarUri ? (
+                <Image 
+                  source={{ uri: avatarUri }} 
+                  style={styles.avatarImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <Icon name="person" size={40} color="#FFFFFF" />
+              )}
+            </TouchableOpacity>
             <TouchableOpacity 
               style={styles.editAvatarButton}
-              onPress={handleEditProfile}
+              onPress={showImagePickerOptions} // Utiliser l'Alert directement
             >
               <Icon name="camera" size={16} color="#FFF" />
             </TouchableOpacity>
@@ -259,6 +381,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
   },
   editAvatarButton: {
     position: 'absolute',

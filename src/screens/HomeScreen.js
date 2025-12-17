@@ -60,8 +60,11 @@ export default function HomeScreen({ navigation }) {
         id: p.id,               // BIGINT → OK
         name: p.name,
         price: p.price,
+        quantity:p.quantity,
         image_url: p.image_url,
         category: p.category || "other",
+        description:p.description,
+        gender: p.gender || null, // Ajout du champ gender si disponible dans votre table
       }));
 
       setProducts(normalized);
@@ -81,21 +84,31 @@ export default function HomeScreen({ navigation }) {
 
   /* ===================== CATEGORIES ===================== */
   const categories = [
-    { id: "all", name: "Tout", icon: "grid-outline", color: "#000" },
-    { id: "electronics", name: "Électronique", icon: "phone-portrait-outline", color: "#FF6B6B" },
-    { id: "jewelery", name: "Bijoux", icon: "diamond-outline", color: "#C71585" },
-    { id: "men", name: "Homme", icon: "man-outline", color: "#45B7D1" },
-    { id: "women", name: "Femme", icon: "woman-outline", color: "#AA00FF" },
-    { id: "other", name: "Autres", icon: "pricetag-outline", color: "#777" },
+    { id: "all", name: "Tout", icon: "grid-outline", color: "#000", type: "all" },
+    { id: "electronics", name: "Électronique", icon: "phone-portrait-outline", color: "#FF6B6B", type: "category" },
+    { id: "jewelery", name: "Bijoux", icon: "diamond-outline", color: "#C71585", type: "category" },
+    { id: "men", name: "Homme", icon: "man-outline", color: "#45B7D1", type: "gender" },
+    { id: "women", name: "Femme", icon: "woman-outline", color: "#AA00FF", type: "gender" },
+    { id: "other", name: "Autres", icon: "pricetag-outline", color: "#777", type: "category" },
   ];
 
   const applyCategoryFilter = () => {
     if (activeCategory === "all") {
       setFilteredProducts(products);
     } else {
-      setFilteredProducts(
-        products.filter((p) => p.category === activeCategory)
-      );
+      const selectedCategory = categories.find(cat => cat.id === activeCategory);
+      
+      if (selectedCategory.type === "category") {
+        // Filtre par catégorie (electronics, jewelery, other)
+        setFilteredProducts(
+          products.filter((p) => p.category === activeCategory)
+        );
+      } else if (selectedCategory.type === "gender") {
+        // Filtre par genre (homme/femme)
+        setFilteredProducts(
+          products.filter((p) => p.gender === activeCategory)
+        );
+      }
     }
   };
 
@@ -124,12 +137,28 @@ export default function HomeScreen({ navigation }) {
             <TouchableOpacity
               key={category.id}
               onPress={() => setActiveCategory(category.id)}
-              style={styles.categoryItem}
+              style={[
+                styles.categoryItem,
+                activeCategory === category.id && styles.activeCategoryItem
+              ]}
             >
-              <View style={[styles.categoryIcon, { backgroundColor: `${category.color}20` }]}>
-                <Icon name={category.icon} size={28} color={category.color} />
+              <View style={[
+                styles.categoryIcon, 
+                { backgroundColor: `${category.color}20` },
+                activeCategory === category.id && styles.activeCategoryIcon
+              ]}>
+                <Icon 
+                  name={category.icon} 
+                  size={28} 
+                  color={activeCategory === category.id ? "#fff" : category.color} 
+                />
               </View>
-              <Text style={styles.categoryName}>{category.name}</Text>
+              <Text style={[
+                styles.categoryName,
+                activeCategory === category.id && styles.activeCategoryText
+              ]}>
+                {category.name}
+              </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -170,12 +199,20 @@ export default function HomeScreen({ navigation }) {
           { useNativeDriver: false }
         )}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Icon name="search-outline" size={60} color="#ccc" />
+            <Text style={styles.emptyText}>
+              Aucun produit trouvé dans cette catégorie
+            </Text>
+          </View>
+        }
       />
     </SafeAreaView>
   );
 }
 
-/* ===================== STYLES (INCHANGÉS) ===================== */
+/* ===================== STYLES ===================== */
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F8F9FA" },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
@@ -196,6 +233,7 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 20, fontWeight: "700", marginLeft: 16 },
   categoriesContainer: { paddingHorizontal: 16 },
   categoryItem: { alignItems: "center", marginRight: 20 },
+  activeCategoryItem: { transform: [{ scale: 1.05 }] },
   categoryIcon: {
     width: CATEGORY_SIZE,
     height: CATEGORY_SIZE,
@@ -204,7 +242,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 8,
   },
+  activeCategoryIcon: {
+    backgroundColor: "#FF6B6B",
+  },
   categoryName: { fontSize: 12, fontWeight: "600", color: "#333" },
+  activeCategoryText: { color: "#FF6B6B", fontWeight: "700" },
 
   productColumn: { width: "50%", padding: 6 },
+  
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 50,
+  },
+  emptyText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#888",
+    textAlign: "center",
+  },
 });

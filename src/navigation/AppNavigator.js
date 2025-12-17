@@ -1,7 +1,8 @@
-import React from "react";
+import React, { memo } from "react";
 import {
   NavigationContainer,
   DefaultTheme,
+  useNavigation,
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -30,6 +31,7 @@ import CartScreen from "../screens/CartScreen";
 import OrdersScreen from "../screens/OrdersScreen";
 import OrderDetailsScreen from "../screens/OrderDetailsScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import ContactScreen from "../screens/ContactScreen"; // ✅ AJOUT
 
 // Admin
 import AdminHomeScreen from "../screens/admin/AdminHomeScreen";
@@ -38,6 +40,7 @@ import AdminAddProductScreen from "../screens/admin/AdminAddProductScreen";
 import AdminEditProductScreen from "../screens/admin/AdminEditProductScreen";
 import AdminOrdersScreen from "../screens/admin/AdminOrdersScreen";
 import AdminUsersScreen from "../screens/admin/AdminUsersScreen";
+
 /* ================= NAVIGATORS ================= */
 
 const Stack = createNativeStackNavigator();
@@ -45,7 +48,7 @@ const Tab = createBottomTabNavigator();
 
 /* ================= CONFIG ================= */
 
-const ADMIN_EMAIL = "admin@shoppro.com";
+const ADMIN_EMAIL = "admin@shopaddiction.com";
 
 const MyTheme = {
   ...DefaultTheme,
@@ -58,42 +61,63 @@ const MyTheme = {
 
 /* ================= HEADER ================= */
 
-const LogoHeader = () => (
-  <View style={styles.logoContainer}>
-    <Text style={styles.logoText}>
-      Shop<Text style={styles.logoHighlight}>Pro</Text>
-    </Text>
-  </View>
-);
+const LogoHeader = memo(() => {
+  const navigation = useNavigation();
 
-const CustomHeader = ({ navigation }) => (
+  return (
+    <TouchableOpacity
+      style={styles.logoContainer}
+    >
+      <Text style={styles.logoText}>
+        Shop<Text style={styles.logoHighlight}>Addiction</Text>
+      </Text>
+    </TouchableOpacity>
+  );
+});
+
+const CustomHeader = memo(({ navigation }) => (
   <View style={styles.headerContainer}>
     <TouchableOpacity onPress={() => navigation.goBack()}>
       <Ionicons name="arrow-back" size={24} color="#333" />
     </TouchableOpacity>
-    <LogoHeader />
-    <View style={styles.headerRight}>
-      <Ionicons name="search-outline" size={22} color="#333" />
-      <Ionicons name="notifications-outline" size={22} color="#333" />
-    </View>
-  </View>
-);
 
-const MainHeader = () => (
-  <View style={styles.mainHeaderContainer}>
-    <View style={styles.mainHeaderLeft}>
-      <TouchableOpacity style={styles.locationButton}>
-        <Ionicons name="location-outline" size={18} color="#333" />
-        <Text style={styles.locationText}>Livrer à Paris</Text>
+    <LogoHeader />
+
+    <View style={styles.headerRight}>
+      <TouchableOpacity style={styles.iconButton}>
+        <Ionicons name="search-outline" size={22} color="#333" />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.iconButton}
+        onPress={() => navigation.navigate("Contact")}
+      >
+        <Ionicons name="chatbubble-outline" size={22} color="#333" />
       </TouchableOpacity>
     </View>
-    <LogoHeader />
-    <View style={styles.mainHeaderRight}>
-      <Ionicons name="search-outline" size={22} color="#333" />
-      <Ionicons name="chatbubble-outline" size={22} color="#333" />
-    </View>
   </View>
-);
+));
+
+const MainHeader = memo(() => {
+  const navigation = useNavigation(); // ✅ accès navigation
+
+  return (
+    <View style={styles.mainHeaderContainer}>
+      <LogoHeader />
+
+      <View style={styles.mainHeaderRight}>
+
+
+        {/* ✅ CHAT → CONTACT */}
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => navigation.navigate("Contact")}
+        >
+          <Ionicons name="chatbubble-outline" size={22} color="#333" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+});
 
 /* ================= TAB ICON ================= */
 
@@ -117,8 +141,14 @@ function MainTabs() {
         tabBarActiveTintColor: "#FF6B6B",
         tabBarInactiveTintColor: "#8A8A8A",
         tabBarStyle: styles.tabBar,
-        tabBarIcon: ({ focused, color, size }) =>
-          <TabBarIcon name={route.name} focused={focused} color={color} size={size} />,
+        tabBarIcon: ({ focused, color, size }) => (
+          <TabBarIcon
+            name={route.name}
+            focused={focused}
+            color={color}
+            size={size}
+          />
+        ),
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
@@ -134,7 +164,11 @@ function MainTabs() {
 function AdminStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="AdminHome" component={AdminHomeScreen} options={{ title: "Admin" }} />
+      <Stack.Screen
+        name="AdminHome"
+        component={AdminHomeScreen}
+        options={{ title: "Admin – ShopAddiction", headerBackVisible: false }}
+      />
       <Stack.Screen name="AdminProducts" component={AdminProductsScreen} />
       <Stack.Screen name="AdminAddProduct" component={AdminAddProductScreen} />
       <Stack.Screen name="AdminEditProduct" component={AdminEditProductScreen} />
@@ -161,16 +195,35 @@ function UserStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        header: ({ navigation }) => <CustomHeader navigation={navigation} />,
+        header: ({ navigation }) => (
+          <CustomHeader navigation={navigation} />
+        ),
       }}
     >
-      <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
-      <Stack.Screen name="ProductDetails" component={ProductDetailsScreen} />
-      <Stack.Screen name="OrderDetailsScreen" component={OrderDetailsScreen} />
-      <Stack.Screen name="AdminUsersScreen" component={AdminUsersScreen} />
+      <Stack.Screen
+        name="MainTabs"
+        component={MainTabs}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="ProductDetails"
+        component={ProductDetailsScreen}
+      />
+
+      <Stack.Screen
+        name="OrderDetailsScreen"
+        component={OrderDetailsScreen}
+      />
+
+      <Stack.Screen
+        name="Contact"
+        component={ContactScreen}
+      />
     </Stack.Navigator>
   );
 }
+
 
 /* ================= ROOT ================= */
 
@@ -187,7 +240,7 @@ export default function AppNavigator() {
     );
   }
 
-  const isAdmin = session.user.email === ADMIN_EMAIL;
+  const isAdmin = session?.user?.email === ADMIN_EMAIL;
 
   return (
     <NavigationContainer theme={MyTheme}>
@@ -199,46 +252,42 @@ export default function AppNavigator() {
 /* ================= STYLES ================= */
 
 const styles = StyleSheet.create({
-  logoContainer: { alignItems: "center" },
-  logoText: { fontSize: 24, fontWeight: "bold" },
+  logoContainer: { flex: 1,  },
+  logoText: { fontSize: 26, fontWeight: "800" },
   logoHighlight: { color: "#FF6B6B" },
 
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 12,
+    padding: 15,
     backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
   },
-  headerRight: { flexDirection: "row", gap: 12 },
+  headerRight: { flexDirection: "row", gap: 15 },
 
   mainHeaderContainer: {
     flexDirection: "row",
-    alignItems: "center",
-    paddingTop: Platform.OS === "ios" ? 45 : 10,
+    justifyContent: "space-between",
+    paddingTop: Platform.OS === "ios" ? 45 : 15,
+    paddingBottom: 15,
+    paddingHorizontal: 15,
     backgroundColor: "#fff",
-    paddingBottom: 10,
-    paddingHorizontal: 10,
   },
-  mainHeaderLeft: { flex: 1 },
   mainHeaderRight: { flexDirection: "row", gap: 15 },
 
-  locationButton: {
-    backgroundColor: "#F5F5F5",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+  iconButton: {
+    width: 40,
+    height: 40,
     borderRadius: 20,
-    flexDirection: "row",
+    backgroundColor: "#F5F5F5",
+    justifyContent: "center",
     alignItems: "center",
-    gap: 5,
   },
-  locationText: { fontSize: 12, fontWeight: "500" },
 
   tabBar: {
-    backgroundColor: "#fff",
-    height: Platform.OS === "ios" ? 80 : 60,
-    paddingBottom: Platform.OS === "ios" ? 20 : 5,
+    height: Platform.OS === "ios" ? 85 : 65,
+    paddingBottom: Platform.OS === "ios" ? 25 : 10,
   },
 });

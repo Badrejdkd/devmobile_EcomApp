@@ -100,7 +100,7 @@ export default function LoginScreen({ navigation }) {
               <View style={styles.logo}>
                 <Icon name="cart" size={40} color="#FF6B6B" />
               </View>
-              <Text style={styles.logoText}>Shop<Text style={styles.logoHighlight}>Pro</Text></Text>
+              <Text style={styles.logoText}>Shop<Text style={styles.logoHighlight}>Addiction</Text></Text>
             </View>
             <Text style={styles.welcomeText}>Bienvenue !</Text>
             <Text style={styles.subtitle}>Connectez-vous à votre compte</Text>
@@ -197,7 +197,7 @@ export default function LoginScreen({ navigation }) {
           </View>
 
           {/* Version */}
-          <Text style={styles.versionText}>ShopPro v1.0.0</Text>
+          <Text style={styles.versionText}>ShopAddiction v1.0.0</Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
