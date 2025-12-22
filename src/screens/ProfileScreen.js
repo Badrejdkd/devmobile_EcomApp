@@ -1,579 +1,257 @@
-import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  SafeAreaView, 
-  ScrollView, 
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
   TouchableOpacity,
   Image,
   Alert,
   Platform,
-  Modal,
-  TouchableWithoutFeedback
-} from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { useAuth } from '../context/AuthContext';
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+} from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
+import { useAuth } from "../context/AuthContext";
+import * as ImagePicker from "expo-image-picker";
 
 export default function ProfileScreen({ navigation }) {
   const { session, logout } = useAuth();
   const [avatarUri, setAvatarUri] = useState(null);
-  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
 
+  /* ================= LOGOUT ================= */
   const handleLogout = () => {
     Alert.alert(
-      'Déconnexion',
-      'Êtes-vous sûr de vouloir vous déconnecter ?',
+      "Déconnexion",
+      "Êtes-vous sûr de vouloir vous déconnecter ?",
       [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Déconnexion', style: 'destructive', onPress: logout }
+        { text: "Annuler", style: "cancel" },
+        { text: "Déconnexion", style: "destructive", onPress: logout },
       ]
     );
   };
 
-  const handleEditProfile = () => {
-    Alert.alert(
-      'Modifier le profil',
-      'Cette fonctionnalité sera disponible prochainement.',
-      [{ text: 'OK' }]
-    );
-  };
+  /* ================= IMAGE PICKER ================= */
+  
 
-  const openPhotoOptions = () => {
-    setShowPhotoOptions(true);
-  };
+  const pickImageFromGallery = async () => {
+    const { status } =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-  const closePhotoOptions = () => {
-    setShowPhotoOptions(false);
-  };
+    if (status !== "granted") {
+      Alert.alert("Permission refusée", "Accès à la galerie refusé");
+      return;
+    }
 
-  const pickImageFromGallery = () => {
-    closePhotoOptions();
-    
-    const options = {
-      mediaType: 'photo',
-      maxWidth: 500,
-      maxHeight: 500,
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
       quality: 0.8,
-      includeBase64: false,
-    };
-
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.errorCode) {
-        Alert.alert('Erreur', `Une erreur est survenue: ${response.errorMessage}`);
-        console.log('ImagePicker Error: ', response.errorMessage);
-      } else if (response.assets && response.assets.length > 0) {
-        const uri = response.assets[0].uri;
-        setAvatarUri(uri);
-        Alert.alert('Succès', 'Photo de profil mise à jour');
-      }
     });
+
+    if (!result.canceled) {
+      setAvatarUri(result.assets[0].uri);
+      Alert.alert("Succès", "Photo de profil mise à jour");
+    }
   };
 
-  const takePhotoWithCamera = () => {
-    closePhotoOptions();
-    
-    const options = {
-      mediaType: 'photo',
-      maxWidth: 500,
-      maxHeight: 500,
+  const takePhotoWithCamera = async () => {
+    const { status } =
+      await ImagePicker.requestCameraPermissionsAsync();
+
+    if (status !== "granted") {
+      Alert.alert("Permission refusée", "Accès à la caméra refusé");
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
       quality: 0.8,
-      includeBase64: false,
-      saveToPhotos: true,
-    };
-
-    launchCamera(options, (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled camera');
-      } else if (response.errorCode) {
-        Alert.alert('Erreur', `Une erreur est survenue: ${response.errorMessage}`);
-        console.log('Camera Error: ', response.errorMessage);
-      } else if (response.assets && response.assets.length > 0) {
-        const uri = response.assets[0].uri;
-        setAvatarUri(uri);
-        Alert.alert('Succès', 'Photo de profil mise à jour');
-      }
     });
+
+    if (!result.canceled) {
+      setAvatarUri(result.assets[0].uri);
+      Alert.alert("Succès", "Photo de profil mise à jour");
+    }
   };
 
-  const removeProfilePhoto = () => {
-    closePhotoOptions();
+  const showImageOptions = () => {
     Alert.alert(
-      'Supprimer la photo',
-      'Voulez-vous vraiment supprimer votre photo de profil ?',
+      "Photo de profil",
+      "Choisissez une option",
       [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Supprimer',
-          style: 'destructive',
-          onPress: () => {
-            setAvatarUri(null);
-            Alert.alert('Succès', 'Photo de profil supprimée');
-          }
-        }
-      ]
-    );
-  };
-
-  // Alternative: Utiliser ActionSheet pour une meilleure UX
-  const showImagePickerOptions = () => {
-    Alert.alert(
-      'Changer la photo de profil',
-      'Choisissez une option',
-      [
-        {
-          text: 'Prendre une photo',
-          onPress: takePhotoWithCamera,
-        },
-        {
-          text: 'Choisir dans la galerie',
-          onPress: pickImageFromGallery,
-        },
+        { text: "Prendre une photo", onPress: takePhotoWithCamera },
+        { text: "Choisir depuis la galerie", onPress: pickImageFromGallery },
         avatarUri && {
-          text: 'Supprimer la photo',
-          style: 'destructive',
-          onPress: removeProfilePhoto,
+          text: "Supprimer la photo",
+          style: "destructive",
+          onPress: () => setAvatarUri(null),
         },
-        {
-          text: 'Annuler',
-          style: 'cancel',
-        },
-      ].filter(Boolean) // Pour filtrer les options null/undefined
+        { text: "Annuler", style: "cancel" },
+      ].filter(Boolean)
     );
   };
 
-  const menuItems = [
-    {
-      id: 1,
-      title: 'Mes commandes',
-      icon: 'receipt-outline',
-      color: '#FF6B6B',
-      onPress: () => navigation.navigate('Orders')
-    },
-    {
-      id: 2,
-      title: 'Mes adresses',
-      icon: 'location-outline',
-      color: '#4ECDC4',
-      onPress: () => Alert.alert('Adresses', 'Gestion des adresses à venir.')
-    },
-    {
-      id: 3,
-      title: 'Moyens de paiement',
-      icon: 'card-outline',
-      color: '#45B7D1',
-      onPress: () => Alert.alert('Paiements', 'Gestion des paiements à venir.')
-    },
-    {
-      id: 4,
-      title: 'Paramètres',
-      icon: 'settings-outline',
-      color: '#FFA62E',
-      onPress: () => Alert.alert('Paramètres', 'Configuration à venir.')
-    },
-    {
-      id: 5,
-      title: 'Centre d\'aide',
-      icon: 'help-circle-outline',
-      color: '#96CEB4',
-      onPress: () => Alert.alert('Aide', 'Support à venir.')
-    },
-    {
-      id: 6,
-      title: 'À propos',
-      icon: 'information-circle-outline',
-      color: '#FF9A8B',
-      onPress: () => Alert.alert('À propos', 'ShopPro v1.0.0\n© 2024')
-    },
-  ];
+  /* ================= UI ================= */
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
+      {/* HEADER */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Mon Profil</Text>
-        <TouchableOpacity style={styles.notificationButton}>
+        <TouchableOpacity>
           <Icon name="notifications-outline" size={24} color="#333" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView 
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* Section Profil */}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* PROFILE */}
         <View style={styles.profileSection}>
-          <View style={styles.avatarContainer}>
-            <TouchableOpacity 
-              style={styles.avatar}
-              onPress={showImagePickerOptions} // Utiliser l'Alert directement
-              activeOpacity={0.8}
-            >
-              {avatarUri ? (
-                <Image 
-                  source={{ uri: avatarUri }} 
-                  style={styles.avatarImage}
-                  resizeMode="cover"
-                />
-              ) : (
-                <Icon name="person" size={40} color="#FFFFFF" />
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.editAvatarButton}
-              onPress={showImagePickerOptions} // Utiliser l'Alert directement
-            >
-              <Icon name="camera" size={16} color="#FFF" />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={styles.avatar}
+            onPress={showImageOptions}
+          >
+            {avatarUri ? (
+              <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+            ) : (
+              <Icon name="person" size={40} color="#FFF" />
+            )}
+          </TouchableOpacity>
 
           <Text style={styles.userName}>
-            {session?.user?.email?.split('@')[0] || 'Utilisateur'}
+            {session?.user?.email?.split("@")[0]}
           </Text>
           <Text style={styles.userEmail}>{session?.user?.email}</Text>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.editProfileButton}
-            onPress={handleEditProfile}
+            onPress={() =>
+              Alert.alert("Info", "Modification du profil bientôt disponible")
+            }
           >
             <Icon name="create-outline" size={18} color="#FF6B6B" />
             <Text style={styles.editProfileText}>Modifier le profil</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Stats */}
-        <View style={styles.statsSection}>
-          <View style={styles.statCard}>
-            <Icon name="cart-outline" size={24} color="#FF6B6B" />
-            <Text style={styles.statNumber}>12</Text>
-            <Text style={styles.statLabel}>Commandes</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Icon name="star-outline" size={24} color="#FFD700" />
-            <Text style={styles.statNumber}>4.8</Text>
-            <Text style={styles.statLabel}>Note</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Icon name="trophy-outline" size={24} color="#4ECDC4" />
-            <Text style={styles.statNumber}>Gold</Text>
-            <Text style={styles.statLabel}>Niveau</Text>
-          </View>
+        {/* MENU */}
+        <View style={styles.menu}>
+          <MenuItem
+            icon="receipt-outline"
+            text="Mes commandes"
+            onPress={() => navigation.navigate("Orders")}
+          />
+          <MenuItem
+            icon="settings-outline"
+            text="Paramètres"
+            onPress={() => Alert.alert("Paramètres", "À venir")}
+          />
+          <MenuItem
+            icon="help-circle-outline"
+            text="Centre d’aide"
+            onPress={() => Alert.alert("Aide", "Support à venir")}
+          />
         </View>
 
-        {/* Menu */}
-        <View style={styles.menuSection}>
-          <Text style={styles.sectionTitle}>Mon compte</Text>
-          
-          {menuItems.map((item) => (
-            <TouchableOpacity 
-              key={item.id} 
-              style={styles.menuItem}
-              onPress={item.onPress}
-            >
-              <View style={[styles.menuIcon, { backgroundColor: `${item.color}20` }]}>
-                <Icon name={item.icon} size={22} color={item.color} />
-              </View>
-              <Text style={styles.menuText}>{item.title}</Text>
-              <Icon name="chevron-forward" size={20} color="#CCC" />
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Section préférences */}
-        <View style={styles.preferencesSection}>
-          <Text style={styles.sectionTitle}>Préférences</Text>
-          
-          <View style={styles.preferenceItem}>
-            <View style={styles.preferenceLeft}>
-              <Icon name="moon-outline" size={22} color="#333" />
-              <Text style={styles.preferenceText}>Mode sombre</Text>
-            </View>
-            <TouchableOpacity style={styles.toggleButton}>
-              <View style={styles.toggleCircle} />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.preferenceItem}>
-            <View style={styles.preferenceLeft}>
-              <Icon name="notifications-outline" size={22} color="#333" />
-              <Text style={styles.preferenceText}>Notifications</Text>
-            </View>
-            <TouchableOpacity style={[styles.toggleButton, styles.toggleButtonActive]}>
-              <View style={[styles.toggleCircle, styles.toggleCircleActive]} />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Bouton déconnexion */}
-        <TouchableOpacity 
-          style={styles.logoutButton}
-          onPress={handleLogout}
-        >
+        {/* LOGOUT */}
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Icon name="log-out-outline" size={22} color="#FF6B6B" />
           <Text style={styles.logoutText}>Se déconnecter</Text>
         </TouchableOpacity>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>ShopPro v1.0.0</Text>
-          <Text style={styles.footerSubtext}>© 2024 Tous droits réservés</Text>
-        </View>
+        <Text style={styles.footer}>ShopPro v1.0.0</Text>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+/* ================= MENU ITEM ================= */
+
+const MenuItem = ({ icon, text, onPress }) => (
+  <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+    <Icon name={icon} size={22} color="#555" />
+    <Text style={styles.menuText}>{text}</Text>
+    <Icon name="chevron-forward" size={18} color="#CCC" />
+  </TouchableOpacity>
+);
+
+/* ================= STYLES ================= */
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
+  container: { flex: 1, backgroundColor: "#F8F9FA" },
+
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 10 : 20,
-    paddingBottom: 15,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 20,
+    backgroundColor: "#FFF",
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#1A1A1A',
-  },
-  notificationButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F5F5F5',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scrollContent: {
-    paddingBottom: 30,
-  },
+  headerTitle: { fontSize: 24, fontWeight: "800" },
+
   profileSection: {
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    alignItems: "center",
+    backgroundColor: "#FFF",
     paddingVertical: 30,
-    marginBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  avatarContainer: {
-    position: 'relative',
     marginBottom: 16,
   },
   avatar: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#FF6B6B',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    overflow: 'hidden',
+    backgroundColor: "#FF6B6B",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
   },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
-  },
-  editAvatarButton: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#FF6B6B',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    marginBottom: 4,
-  },
-  userEmail: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 20,
-  },
+  avatarImage: { width: "100%", height: "100%", borderRadius: 50 },
+  userName: { fontSize: 22, fontWeight: "700" },
+  userEmail: { fontSize: 16, color: "#666", marginBottom: 16 },
+
   editProfileButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF5F5',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFF5F5",
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#FFE0E0',
   },
-  editProfileText: {
-    marginLeft: 8,
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FF6B6B',
-  },
-  statsSection: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 20,
-    marginBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  statCard: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#1A1A1A',
-    marginTop: 8,
-  },
-  statLabel: {
-    fontSize: 13,
-    color: '#666',
-    marginTop: 4,
-  },
-  menuSection: {
-    backgroundColor: '#FFFFFF',
-    marginBottom: 16,
-    borderRadius: 16,
+  editProfileText: { marginLeft: 8, color: "#FF6B6B", fontWeight: "600" },
+
+  menu: {
+    backgroundColor: "#FFF",
     marginHorizontal: 16,
-    paddingVertical: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    marginLeft: 20,
-    marginBottom: 16,
+    borderRadius: 16,
+    marginBottom: 20,
   },
   menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 18,
     borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
+    borderBottomColor: "#F0F0F0",
   },
-  menuIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  menuText: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-  },
-  preferencesSection: {
-    backgroundColor: '#FFFFFF',
-    marginBottom: 16,
-    borderRadius: 16,
-    marginHorizontal: 16,
-    paddingVertical: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  preferenceItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
-  },
-  preferenceLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  preferenceText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-    marginLeft: 16,
-  },
-  toggleButton: {
-    width: 50,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#E0E0E0',
-    justifyContent: 'center',
-    paddingHorizontal: 2,
-  },
-  toggleButtonActive: {
-    backgroundColor: '#FF6B6B',
-  },
-  toggleCircle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#FFFFFF',
-  },
-  toggleCircleActive: {
-    alignSelf: 'flex-end',
-  },
+  menuText: { flex: 1, marginLeft: 16, fontSize: 16 },
+
   logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     marginHorizontal: 16,
-    marginBottom: 24,
-    paddingVertical: 18,
+    backgroundColor: "#FFF",
+    padding: 18,
     borderRadius: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
   },
   logoutText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FF6B6B',
     marginLeft: 12,
+    fontSize: 16,
+    color: "#FF6B6B",
+    fontWeight: "600",
   },
+
   footer: {
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  footerText: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  footerSubtext: {
-    fontSize: 12,
-    color: '#999',
+    textAlign: "center",
+    color: "#999",
+    marginVertical: 20,
   },
 });

@@ -7,21 +7,39 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+
+    "permissions": [
+      "CAMERA",
+      "MEDIA_LIBRARY"
+    ],
+
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Autoriser l’accès à la caméra pour prendre une photo de profil",
+        "NSPhotoLibraryUsageDescription": "Autoriser l’accès à la galerie pour choisir une photo de profil",
+        "NSPhotoLibraryAddUsageDescription": "Autoriser l’enregistrement des photos"
+      }
     },
+
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "CAMERA",
+        "READ_MEDIA_IMAGES"
+      ]
     },
+
     "web": {
       "favicon": "./assets/favicon.png"
     }

@@ -5,12 +5,15 @@ import {
   FlatList,
   StyleSheet,
   ActivityIndicator,
+  TouchableOpacity,
+  Alert,
 } from "react-native";
 import { supabase } from "../../supabase/client";
 
 export default function AdminOrdersScreen() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState(null);
 
   /* ================= LOAD ORDERS ================= */
   const loadOrders = async () => {
@@ -33,6 +36,28 @@ export default function AdminOrdersScreen() {
   useEffect(() => {
     loadOrders();
   }, []);
+
+  /* ================= UPDATE STATUS ================= */
+  const updateStatus = async (orderId, newStatus) => {
+    try {
+      setUpdatingId(orderId);
+
+      const { error } = await supabase
+        .from("orders")
+        .update({ status: newStatus })
+        .eq("id", orderId);
+
+      if (error) throw error;
+
+      Alert.alert("Succès", "Statut de la commande mis à jour");
+      loadOrders();
+    } catch (e) {
+      Alert.alert("Erreur", "Impossible de modifier le statut");
+      console.log(e);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   /* ================= UI ================= */
   if (loading) {
@@ -66,7 +91,9 @@ export default function AdminOrdersScreen() {
                 styles.status,
                 item.status === "pending"
                   ? styles.pending
-                  : styles.confirmed,
+                  : item.status === "confirmed"
+                  ? styles.confirmed
+                  : styles.cancelled,
               ]}
             >
               {item.status}
@@ -76,6 +103,31 @@ export default function AdminOrdersScreen() {
           <Text style={styles.date}>
             {new Date(item.created_at).toLocaleString()}
           </Text>
+
+          {/* ACTIONS ADMIN */}
+          {item.status === "pending" && (
+            <View style={styles.actions}>
+              <TouchableOpacity
+                style={[styles.btn, styles.confirmBtn]}
+                disabled={updatingId === item.id}
+                onPress={() =>
+                  updateStatus(item.id, "confirmed")
+                }
+              >
+                <Text style={styles.btnText}>Confirmer</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.btn, styles.cancelBtn]}
+                disabled={updatingId === item.id}
+                onPress={() =>
+                  updateStatus(item.id, "cancelled")
+                }
+              >
+                <Text style={styles.btnText}>Annuler</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       )}
     />
@@ -117,10 +169,34 @@ const styles = StyleSheet.create({
   confirmed: {
     color: "#4CAF50",
   },
+  cancelled: {
+    color: "#F44336",
+  },
   date: {
     fontSize: 12,
     color: "#777",
     marginTop: 6,
+  },
+  actions: {
+    flexDirection: "row",
+    marginTop: 12,
+  },
+  btn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: "center",
+    marginHorizontal: 4,
+  },
+  confirmBtn: {
+    backgroundColor: "#4CAF50",
+  },
+  cancelBtn: {
+    backgroundColor: "#F44336",
+  },
+  btnText: {
+    color: "#FFF",
+    fontWeight: "700",
   },
   center: {
     flex: 1,

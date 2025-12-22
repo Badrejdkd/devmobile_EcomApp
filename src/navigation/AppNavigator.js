@@ -48,7 +48,7 @@ const Tab = createBottomTabNavigator();
 
 /* ================= CONFIG ================= */
 
-const ADMIN_EMAIL = "admin@shopaddiction.com";
+const ADMIN_EMAIL = "admin@shoppro.com";
 
 const MyTheme = {
   ...DefaultTheme,
@@ -84,9 +84,6 @@ const CustomHeader = memo(({ navigation }) => (
     <LogoHeader />
 
     <View style={styles.headerRight}>
-      <TouchableOpacity style={styles.iconButton}>
-        <Ionicons name="search-outline" size={22} color="#333" />
-      </TouchableOpacity>
       <TouchableOpacity
         style={styles.iconButton}
         onPress={() => navigation.navigate("Contact")}
@@ -258,12 +255,11 @@ const styles = StyleSheet.create({
 
   headerContainer: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    padding: 15,
+    paddingTop: Platform.OS === "ios" ? 45 : 15,
+    paddingBottom: 15,
+    paddingHorizontal: 15,
     backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
   },
   headerRight: { flexDirection: "row", gap: 15 },
 

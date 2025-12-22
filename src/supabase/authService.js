@@ -1,7 +1,7 @@
-import { supabase } from './client';
+import { supabase } from "./client";
 
 /**
- * Inscription utilisateur + insertion dans la table profiles
+ * ================= INSCRIPTION =================
  */
 export const signUp = async (email, password, fullName) => {
   // 1️⃣ Création du compte auth
@@ -9,45 +9,46 @@ export const signUp = async (email, password, fullName) => {
     email,
     password,
     options: {
-      data: { full_name: fullName } // metadata stockée dans auth.users
-    }
+      data: {
+        full_name: fullName, // metadata auth.users
+      },
+    },
   });
 
   if (error) throw error;
 
-  // 2️⃣ Insertion dans la table profiles
-  if (data.user) {
-    const { error: insertError } = await supabase
-      .from("profiles")
-      .insert([
-        {
-          id: data.user.id,  // même ID que auth.users
-          full_name: fullName
-        }
-      ]);
+  const user = data.user;
+  if (!user) return data;
 
-    if (insertError) throw insertError;
-  }
+  // 2️⃣ UPSERT dans profiles (pas d’erreur si existe déjà)
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .upsert({
+      id: user.id,
+      email: user.email,
+      full_name: fullName,
+    });
+
+  if (profileError) throw profileError;
 
   return data;
 };
 
 /**
- * Connexion utilisateur
+ * ================= CONNEXION =================
  */
 export const signIn = async (email, password) => {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
-    password
+    password,
   });
 
   if (error) throw error;
-
-  return data; // session + user
+  return data;
 };
 
 /**
- * Déconnexion utilisateur
+ * ================= DÉCONNEXION =================
  */
 export const signOut = async () => {
   const { error } = await supabase.auth.signOut();
@@ -55,11 +56,14 @@ export const signOut = async () => {
 };
 
 /**
- * Récupération session actuelle
+ * ================= SESSION =================
  */
 export const getCurrentSession = async () => {
-  const { data, error } = await supabase.auth.getSession();
-  if (error) throw error;
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
 
-  return data.session;
+  if (error) throw error;
+  return session;
 };

@@ -62,7 +62,7 @@ export default function HomeScreen({ navigation }) {
         price: p.price,
         quantity:p.quantity,
         image_url: p.image_url,
-        category: p.category || "other",
+        category: p.category,
         description:p.description,
         gender: p.gender || null, // Ajout du champ gender si disponible dans votre table
       }));
@@ -87,9 +87,9 @@ export default function HomeScreen({ navigation }) {
     { id: "all", name: "Tout", icon: "grid-outline", color: "#000", type: "all" },
     { id: "electronics", name: "Électronique", icon: "phone-portrait-outline", color: "#FF6B6B", type: "category" },
     { id: "jewelery", name: "Bijoux", icon: "diamond-outline", color: "#C71585", type: "category" },
-    { id: "men", name: "Homme", icon: "man-outline", color: "#45B7D1", type: "gender" },
-    { id: "women", name: "Femme", icon: "woman-outline", color: "#AA00FF", type: "gender" },
-    { id: "other", name: "Autres", icon: "pricetag-outline", color: "#777", type: "category" },
+    { id: "men's clothing", name: "Homme", icon: "man-outline", color: "#45B7D1", type: "category" },
+    { id: "women's clothing", name: "Femme", icon: "woman-outline", color: "#AA00FF", type: "category" },
+
   ];
 
   const applyCategoryFilter = () => {
