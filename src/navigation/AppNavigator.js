@@ -32,6 +32,7 @@ import OrdersScreen from "../screens/OrdersScreen";
 import OrderDetailsScreen from "../screens/OrderDetailsScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import ContactScreen from "../screens/ContactScreen"; // ✅ AJOUT
+import IndexScreen from "../screens/IndexScreen";
 
 // Admin
 import AdminHomeScreen from "../screens/admin/AdminHomeScreen";
@@ -180,6 +181,7 @@ function AdminStack() {
 function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Index" component={IndexScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
     </Stack.Navigator>
