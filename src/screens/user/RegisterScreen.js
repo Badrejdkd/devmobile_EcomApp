@@ -13,9 +13,9 @@ import {
   Modal
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import AppInput from '../components/AppInput';
-import AppButton from '../components/AppButton';
-import { useAuth } from '../context/AuthContext';
+import AppInput from '../../components/AppInput';
+import AppButton from '../../components/AppButton';
+import { useAuth } from '../../context/AuthContext';
 
 export default function RegisterScreen({ navigation }) {
   const { register } = useAuth();

@@ -13,9 +13,9 @@ import {
   TextInput
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
-import { supabase } from '../supabase/client';
+import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../supabase/client';
 
 export default function CartScreen({ navigation }) {
   const { items, total, removeFromCart, clearCart, updateQuantity } = useCart();

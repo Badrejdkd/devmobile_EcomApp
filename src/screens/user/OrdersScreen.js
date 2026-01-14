@@ -12,8 +12,8 @@ import {
   ScrollView,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { supabase } from "../supabase/client";
-import { useAuth } from "../context/AuthContext";
+import { supabase } from "../../supabase/client";
+import { useAuth } from "../../context/AuthContext";
 import { useFocusEffect } from "@react-navigation/native";
 
 export default function OrdersScreen({ navigation }) {

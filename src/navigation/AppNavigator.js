@@ -20,19 +20,19 @@ import { useAuth } from "../context/AuthContext";
 /* ================= SCREENS ================= */
 
 // Auth
-import SplashScreen from "../screens/SplashScreen";
-import LoginScreen from "../screens/LoginScreen";
-import RegisterScreen from "../screens/RegisterScreen";
+import SplashScreen from "../screens/user/SplashScreen";
+import LoginScreen from "../screens/user/LoginScreen";
+import RegisterScreen from "../screens/user/RegisterScreen";
 
 // User
-import HomeScreen from "../screens/HomeScreen";
-import ProductDetailsScreen from "../screens/ProductDetailsScreen";
-import CartScreen from "../screens/CartScreen";
-import OrdersScreen from "../screens/OrdersScreen";
-import OrderDetailsScreen from "../screens/OrderDetailsScreen";
-import ProfileScreen from "../screens/ProfileScreen";
-import ContactScreen from "../screens/ContactScreen"; // ✅ AJOUT
-import IndexScreen from "../screens/IndexScreen";
+import HomeScreen from "../screens/user/HomeScreen";
+import ProductDetailsScreen from "../screens/user/ProductDetailsScreen";
+import CartScreen from "../screens/user/CartScreen";
+import OrdersScreen from "../screens/user/OrdersScreen";
+import OrderDetailsScreen from "../screens/user/OrderDetailsScreen";
+import ProfileScreen from "../screens/user/ProfileScreen";
+import ContactScreen from "../screens/user/ContactScreen"; // ✅ AJOUT
+import IndexScreen from "../screens/user/IndexScreen";
 
 // Admin
 import AdminHomeScreen from "../screens/admin/AdminHomeScreen";

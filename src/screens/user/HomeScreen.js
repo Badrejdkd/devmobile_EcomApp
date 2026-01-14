@@ -13,8 +13,8 @@ import {
   Dimensions,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import ProductCard from "../components/ProductCard";
-import { supabase } from "../supabase/client";
+import ProductCard from "../../components/ProductCard";
+import { supabase } from "../../supabase/client";
 
 const { width } = Dimensions.get("window");
 const BANNER_HEIGHT = 200;
