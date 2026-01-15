@@ -5,7 +5,7 @@ import {
   signUp,
   signOut,
   getCurrentSession,
-} from "../supabase/authService";
+} from "../supabase/auth";
 
 /**
  * 🔐 EMAIL ADMIN (Option B)

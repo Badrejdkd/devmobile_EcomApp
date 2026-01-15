@@ -1,8 +1,5 @@
 import { supabase } from "./client";
 
-/**
- * ================= INSCRIPTION =================
- */
 export const signUp = async (email, password, fullName) => {
   // 1️⃣ Création du compte auth
   const { data, error } = await supabase.auth.signUp({
@@ -10,7 +7,7 @@ export const signUp = async (email, password, fullName) => {
     password,
     options: {
       data: {
-        full_name: fullName, // metadata auth.users
+        full_name: fullName, 
       },
     },
   });

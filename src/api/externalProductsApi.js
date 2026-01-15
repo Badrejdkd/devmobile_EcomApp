@@ -1,3 +1,6 @@
+
+//fetch
+
 export const fetchProductsFromApi = async () => {
   const response = await fetch("https://fakestoreapi.com/products");
 

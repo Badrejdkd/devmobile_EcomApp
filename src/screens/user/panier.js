@@ -13,7 +13,7 @@ import {
   TextInput
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../context/PanierContext';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../supabase/client';
 

@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import AppButton from "../../components/AppButton";
-import { useCart } from "../../context/CartContext";
+import { useCart } from "../../context/PanierContext";
 import { useAuth } from "../../context/AuthContext";
 
 const { width } = Dimensions.get("window");

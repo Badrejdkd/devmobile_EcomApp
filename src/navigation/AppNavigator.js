@@ -20,27 +20,27 @@ import { useAuth } from "../context/AuthContext";
 /* ================= SCREENS ================= */
 
 // Auth
-import SplashScreen from "../screens/user/SplashScreen";
-import LoginScreen from "../screens/user/LoginScreen";
-import RegisterScreen from "../screens/user/RegisterScreen";
+import SplashScreen from "../screens/user/chargement";
+import LoginScreen from "../screens/user/Login";
+import RegisterScreen from "../screens/user/Register";
 
 // User
-import HomeScreen from "../screens/user/HomeScreen";
-import ProductDetailsScreen from "../screens/user/ProductDetailsScreen";
-import CartScreen from "../screens/user/CartScreen";
-import OrdersScreen from "../screens/user/OrdersScreen";
-import OrderDetailsScreen from "../screens/user/OrderDetailsScreen";
-import ProfileScreen from "../screens/user/ProfileScreen";
-import ContactScreen from "../screens/user/ContactScreen"; // ✅ AJOUT
-import IndexScreen from "../screens/user/IndexScreen";
+import HomeScreen from "../screens/user/Home";
+import ProductDetailsScreen from "../screens/user/ProductDetails";
+import CartScreen from "../screens/user/panier";
+import OrdersScreen from "../screens/user/commande";
+import OrderDetailsScreen from "../screens/user/commandeDetails";
+import ProfileScreen from "../screens/user/Profile";
+import ContactScreen from "../screens/user/Contact";
+import IndexScreen from "../screens/user/Index";
 
 // Admin
-import AdminHomeScreen from "../screens/admin/AdminHomeScreen";
-import AdminProductsScreen from "../screens/admin/AdminProductsScreen";
-import AdminAddProductScreen from "../screens/admin/AdminAddProductScreen";
-import AdminEditProductScreen from "../screens/admin/AdminEditProductScreen";
-import AdminOrdersScreen from "../screens/admin/AdminOrdersScreen";
-import AdminUsersScreen from "../screens/admin/AdminUsersScreen";
+import AdminHomeScreen from "../screens/admin/AdminHome";
+import AdminProductsScreen from "../screens/admin/AdminProducts";
+import AdminAddProductScreen from "../screens/admin/AdminAjouterProduct";
+import AdminEditProductScreen from "../screens/admin/AdminmodifierProduct";
+import AdminOrdersScreen from "../screens/admin/AdminCommande";
+import AdminUsersScreen from "../screens/admin/AdminUsers";
 
 /* ================= NAVIGATORS ================= */
 
