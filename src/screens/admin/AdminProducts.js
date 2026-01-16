@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { Ionicons, MaterialIcons, Feather } from "@expo/vector-icons";
 import { supabase } from "../../supabase/client";
-import { importApiProductsToDb } from "../../supabase/productImportService";
+import { importApiProductsToDb } from "../../supabase/productImport";
 
 export default function AdminProductsScreen({ navigation }) {
   const [products, setProducts] = useState([]);

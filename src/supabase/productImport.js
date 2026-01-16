@@ -1,5 +1,5 @@
 import { supabase } from "./client";
-import { fetchProductsFromApi } from "../api/externalProductsApi";
+import { fetchProductsFromApi } from "../Api/externalProductsApi";
 
 export const importApiProductsToDb = async () => {
   const apiProducts = await fetchProductsFromApi();
